@@ -53,13 +53,13 @@ const int BROJ_SENZORA = 5;
 const int pinoviSenzora[BROJ_SENZORA] = { sensor1, sensor2, sensor3, sensor4, sensor5 };
 // "Težine" za svaki senzor. Ključne za izračun pozicije linije.
 // Negativne vrijednosti znače da je linija lijevo, pozitivne da je desno.
-const int tezine[BROJ_SENZORA] = { -12, -3, 0, 3, 12 };
+const int tezine[BROJ_SENZORA] = { -6, -3, 0, 3, 6 };
 const int PIN_TIPKALO = 15;  // Pin za gumb kojim pokrećemo drugu fazu zadatka.
 
 // --- Parametri za P-regulator (PID kontroler) ---
 // OVE VRIJEDNOSTI JE POTREBNO EKSPERIMENTALNO PODESITI ZA OPTIMALAN RAD!
-float Kp = 50;           // Proporcionalni koeficijent. Određuje "agresivnost" reakcije robota na grešku.
-int osnovnaBrzina = 150;  // Osnovna brzina kretanja (0-255). Određuje opću brzinu robota na stazi.
+float Kp = 9;            // Proporcionalni koeficijent. Određuje "agresivnost" reakcije robota na grešku.
+int osnovnaBrzina = 100;  // Osnovna brzina kretanja (0-255). Određuje opću brzinu robota na stazi.
 
 // --- Parametri za posebne manevre ---
 const int VRIJEME_PROVJERE_KRAJA_MS = 300;  // Koliko dugo (u ms) robot ide naprijed da provjeri je li na crnom kvadratu.
@@ -179,26 +179,36 @@ void okreniLijevo(int brzina) {
  * što je ključno za skretanje tijekom praćenja linije.
  */
 void pokreniMotore(int brzinaLijevo, int brzinaDesno) {
-  brzinaLijevo = constrain(brzinaLijevo, -255, 255);
-  brzinaDesno = constrain(brzinaDesno, -255, 255);
+Serial.print("BrzinaD: "); Serial.println(brzinaDesno);
+Serial.print("BrzinaL: "); Serial.println(brzinaLijevo);
 
-  RL_fwd(brzinaLijevo);
-  FL_fwd(brzinaLijevo);
-  RR_fwd(brzinaDesno);
-  FR_fwd(brzinaDesno);
+  if (brzinaDesno < 0) {
+    RR_bck(abs(brzinaDesno));
+    FR_bck(abs(brzinaDesno));
+  } else {
+    RR_fwd(brzinaDesno);
+    FR_fwd(brzinaDesno);
+  }
+    if (brzinaLijevo < 0) {
+    RL_bck(abs(brzinaLijevo));
+    FL_bck(abs(brzinaLijevo));
+  } else {
+    RL_fwd(brzinaLijevo);
+    FL_fwd(brzinaLijevo);
+  }
+
 }
 
 //==============================================================================
 // POMOĆNE I GLAVNE FUNKCIJE
 //==============================================================================
 
-/** @brief Provjerava jesu li svih 5 senzora na crnoj podlozi. */
+/* @brief Provjerava jesu li svih 5 senzora na crnoj podlozi. */
 bool jelSviSenzoriNaCrnom() {
   for (int i = 0; i < BROJ_SENZORA; i++) {
     if (ocitanjaSenzora[i] != 0) return false;
   }
   return true;
-  
 }
 
 
@@ -212,7 +222,7 @@ void ocitajSenzore() {
     Serial.print(ocitanjaSenzora[i]);
   }
   Serial.println();
-  delay(250);
+  delay(0);
 }
 
 /** * @brief "Mozak" P-regulatora. Izračunava ponderiranu poziciju linije.
@@ -255,9 +265,9 @@ void pratiLiniju() {
   Serial.print("Skretanje: ");
   Serial.println(skretanje);
   // Diferencijalno upravljanje: da bi skrenuo desno, uspori lijevu stranu i ubrzaj desnu.
-  int brzinaLijevo = osnovnaBrzina - skretanje;
-  int brzinaDesno = osnovnaBrzina + skretanje;
-Serial.print("Brzina L: ");
+  int brzinaLijevo = osnovnaBrzina + skretanje;
+  int brzinaDesno = osnovnaBrzina - skretanje;
+  Serial.print("Brzina L: ");
   Serial.println(brzinaLijevo);
   Serial.print("Brzina D: ");
   Serial.println(brzinaDesno);
@@ -356,3 +366,12 @@ void loop() {
       break;
   }
 }
+/*
+void loop() {
+  ocitajSenzore();
+  float odstupanje = izracunajOdstupanje();
+  Serial.print("Odstupanje ");
+  Serial.println(odstupanje);
+  delay(500);
+}
+*/
