@@ -1,6 +1,6 @@
 /********************************************************************************
  * @file    Zadatak 2 (labirint - linije) - Priručnik u Kodu
- * @author  Tim Juraj Dobrila I
+ * @author  Tim Juraj Dobrila II
  * @version 4.5
  * @date    16.10.2025.
  *
