@@ -8,9 +8,8 @@
 LSM9DS1 imu;
 
 // 3. ZALIJEPITE SVOJE VRIJEDNOSTI OVDJE
-// (Ovo je linija koju ste kopirali iz Koraka 1)
-float magBias[3] = { 749.500000f, 457.000000f, 373.000000f };
-//float magBias[3] = { 305.000000f, 185.500000f, 1095.000000f };
+// (Ovdje treba zalijepiti rezultat kalibracije magnetonetra)
+float magBias[3] = { 305.000000f, 185.500000f, 1095.000000f };
 
 // Postavke ispisa...
 #define PRINT_CALCULATED
